@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
                 setHumanReadableResult(device.getDistance() + " meter");
                 break;
             case DEVICE_LOST:
+
                 setStatusBarText("Disconnected");
                 break;
         }

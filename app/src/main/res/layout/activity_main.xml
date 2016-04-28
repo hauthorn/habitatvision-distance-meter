@@ -30,10 +30,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/debug_info"
+        android:text="RSSI:"
+        android:id="@+id/rssi"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rå distance:"
+        android:id="@+id/raw_distance"
+        android:layout_above="@+id/rssi"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
