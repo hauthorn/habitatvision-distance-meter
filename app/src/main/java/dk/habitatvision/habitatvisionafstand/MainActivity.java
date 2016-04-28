@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.kontakt.sdk.android.ble.configuration.ActivityCheckConfiguration;
 import com.kontakt.sdk.android.ble.configuration.ForceScanConfiguration;
@@ -14,7 +15,6 @@ import com.kontakt.sdk.android.ble.connection.OnServiceReadyListener;
 import com.kontakt.sdk.android.ble.device.BeaconRegion;
 import com.kontakt.sdk.android.ble.discovery.BluetoothDeviceEvent;
 import com.kontakt.sdk.android.ble.discovery.EventType;
-import com.kontakt.sdk.android.ble.filter.ibeacon.IBeaconFilters;
 import com.kontakt.sdk.android.ble.manager.ProximityManager;
 import com.kontakt.sdk.android.ble.manager.ProximityManagerContract;
 import com.kontakt.sdk.android.ble.rssi.RssiCalculators;
@@ -27,12 +27,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements ProximityManager.ProximityListener {
+    private static final String TAG = "MainActivity";
     private ProximityManagerContract proximityManager;
     private ScanContext scanContext;
-    private static final String TAG = "MainActivity";
+
+    private TextView statusBar;
+    private TextView humanReadableResult;
+    private TextView debugInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,10 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
         setContentView(R.layout.activity_main);
 
         proximityManager = new ProximityManager(this);
+
+        statusBar = (TextView) findViewById(R.id.status_text_view);
+        humanReadableResult = (TextView) findViewById(R.id.human_readable_result);
+        debugInfo = (TextView) findViewById(R.id.debug_info);
     }
 
     @Override
@@ -72,6 +79,17 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
         proximityManager.disconnect();
     }
 
+    // Helper method to update textviews
+    private void setStatusBarText(String text) {
+        statusBar.setText(text);
+    }
+    private void setHumanReadableResult(String text) {
+        humanReadableResult.setText(text);
+    }
+    private void setDebugInfo(String text) {
+        debugInfo.setText(text);
+    }
+
     private ScanContext getScanContext() {
         if (scanContext != null) return scanContext;
 
@@ -85,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
         regions.add(region);
 
         scanContext = new ScanContext.Builder()
-                .setScanPeriod(new ScanPeriod(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(2)))
+                .setScanPeriod(ScanPeriod.RANGING)
                 .setScanMode(ProximityManager.SCAN_MODE_BALANCED)
                 .setActivityCheckConfiguration(ActivityCheckConfiguration.MINIMAL)
                 .setForceScanConfiguration(ForceScanConfiguration.MINIMAL)
@@ -123,18 +141,20 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
         if (devices.size() > 0) {
             device = (IBeaconDevice) devices.get(0);
         }
-        
+        if (device == null) return;
+
         switch (event.getEventType()) {
             case DEVICE_DISCOVERED:
                 Log.d(TAG, "found new beacon, major-minor: " + device.getMajor() + " " + device.getMinor());
                 Log.d(TAG, "Distance-Rssi" + device.getDistance() + " " + device.getRssi());
+                setStatusBarText("Connected");
                 break;
             case DEVICES_UPDATE:
-                Log.d(TAG, "updated beacon, major-minor: " + device.getMajor() + " " + device.getMinor());
-                Log.d(TAG, "Distance-Rssi" + device.getDistance() + " " + device.getRssi());
+                setDebugInfo(device.getDistance() + " " + device.getRssi());
+                setHumanReadableResult(device.getDistance() + " meter");
                 break;
             case DEVICE_LOST:
-                Log.d(TAG, "lost beacon, major-minor: " + device.getMajor() + " " + device.getMinor());
+                setStatusBarText("Disconnected");
                 break;
         }
     }
