@@ -22,6 +22,8 @@ import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.RemoteBluetoothDevice;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
 
     private TextView statusBar;
     private TextView humanReadableResult;
-    private TextView debugInfo;
+    private TextView rawRSSI;
+    private TextView rawDistance;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
 
         statusBar = (TextView) findViewById(R.id.status_text_view);
         humanReadableResult = (TextView) findViewById(R.id.human_readable_result);
-        debugInfo = (TextView) findViewById(R.id.debug_info);
+        rawRSSI = (TextView) findViewById(R.id.rssi);
+        rawDistance = (TextView) findViewById(R.id.raw_distance);
     }
 
     @Override
@@ -83,11 +88,14 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
     private void setStatusBarText(String text) {
         statusBar.setText(text);
     }
-    private void setHumanReadableResult(String text) {
-        humanReadableResult.setText(text);
+    private void setHumanReadableResult(double distance) {
+        humanReadableResult.setText(DistanceCalculator.calculateRealDistanceInMeters(distance) + " meter");
     }
-    private void setDebugInfo(String text) {
-        debugInfo.setText(text);
+    private void setRawRSSI(String text) {
+        rawRSSI.setText("RSSI: " + text);
+    }
+    private void setRawDistance(String text) {
+        rawDistance.setText("Rå distance: " + text);
     }
 
     private ScanContext getScanContext() {
@@ -150,17 +158,14 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
                 setStatusBarText("Connected");
                 break;
             case DEVICES_UPDATE:
-                setDebugInfo(device.getDistance() + " " + device.getRssi());
-                setHumanReadableResult(device.getDistance() + " meter");
+                setRawDistance(device.getDistance() + "");
+                setRawRSSI(device.getRssi() + "");
+                setHumanReadableResult(device.getDistance());
                 break;
             case DEVICE_LOST:
 
                 setStatusBarText("Disconnected");
                 break;
         }
-    }
-
-    private static class NearbyBeacons {
-
     }
 }
