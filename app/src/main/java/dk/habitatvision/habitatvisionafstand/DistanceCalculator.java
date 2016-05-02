@@ -9,7 +9,7 @@ import java.math.RoundingMode;
 public class DistanceCalculator {
 
     public static double calculateRealDistanceInMeters(double rawDistance) {
-        return round(rawDistance, 2);
+        return 3 * round(rawDistance, 2) + 0.4;
     }
 
     public static double round(double value, int places) {

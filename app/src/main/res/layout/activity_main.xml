@@ -43,4 +43,12 @@
         android:layout_above="@+id/rssi"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/beacon_from_event"
+        android:layout_above="@+id/raw_distance"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

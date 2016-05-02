@@ -22,8 +22,6 @@ import com.kontakt.sdk.android.common.profile.IBeaconDevice;
 import com.kontakt.sdk.android.common.profile.IBeaconRegion;
 import com.kontakt.sdk.android.common.profile.RemoteBluetoothDevice;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
     private TextView humanReadableResult;
     private TextView rawRSSI;
     private TextView rawDistance;
+    private TextView beaconFromEvent;
 
 
     @Override
@@ -52,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
         humanReadableResult = (TextView) findViewById(R.id.human_readable_result);
         rawRSSI = (TextView) findViewById(R.id.rssi);
         rawDistance = (TextView) findViewById(R.id.raw_distance);
+        beaconFromEvent = (TextView) findViewById(R.id.beacon_from_event);
     }
 
     @Override
@@ -97,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
     private void setRawDistance(String text) {
         rawDistance.setText("Rå distance: " + text);
     }
+    private void setBeaconFromEvent(String text) {
+        beaconFromEvent.setText(text);
+    }
 
     private ScanContext getScanContext() {
         if (scanContext != null) return scanContext;
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
                 .setActivityCheckConfiguration(ActivityCheckConfiguration.MINIMAL)
                 .setForceScanConfiguration(ForceScanConfiguration.MINIMAL)
                 .setIBeaconScanContext(new IBeaconScanContext.Builder()
-                        .setRssiCalculator(RssiCalculators.newLimitedMeanRssiCalculator(3)) // Even out measurements
+                        .setRssiCalculator(RssiCalculators.newLimitedMeanRssiCalculator(10)) // Even out measurements
                         .setEventTypes(Arrays.asList( // What events are we interested in
                                 EventType.DEVICE_DISCOVERED,
                                 EventType.DEVICES_UPDATE,
@@ -158,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements ProximityManager.
                 setStatusBarText("Connected");
                 break;
             case DEVICES_UPDATE:
+                setBeaconFromEvent(device.getProximityUUID().toString());
                 setRawDistance(device.getDistance() + "");
                 setRawRSSI(device.getRssi() + "");
                 setHumanReadableResult(device.getDistance());
